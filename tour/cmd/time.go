@@ -6,8 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"tour/internal/timer"
+
+	"github.com/spf13/cobra"
 )
 
 var calculateTime string
@@ -26,8 +27,8 @@ var nowTimeCmd = &cobra.Command{
 	Long:  "获取当前时间",
 	Run: func(cmd *cobra.Command, args []string) {
 		now := timer.GetNowTime()
-		// log.Printf("输出结果: %s, %d", now.Format("2006-01-02 15:04:05"), now.Unix())
-		log.Printf("输出结果: %s, %d", now.Format(time.RFC3339), now.Unix())
+		log.Printf("输出结果         : %s, %d", now.Format("2006-01-02 15:04:05"), now.Unix())
+		log.Printf("输出结果(RFC3339): %s, %d", now.Format(time.RFC3339), now.Unix())
 	},
 }
 
@@ -38,6 +39,7 @@ var calculateTimeCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var currentTimer time.Time
 		var layout = "2006-01-02 15:04:05"
+		location, _ := time.LoadLocation("Asia/Shanghai")
 		if calculateTime == "" {
 			currentTimer = timer.GetNowTime()
 		} else {
@@ -46,7 +48,7 @@ var calculateTimeCmd = &cobra.Command{
 				layout = "2006-01-02"
 			}
 
-			currentTimer, err = time.Parse(layout, calculateTime)
+			currentTimer, err = time.ParseInLocation(layout, calculateTime, location)
 			if err != nil {
 				t, _ := strconv.Atoi(calculateTime)
 				currentTimer = time.Unix(int64(t), 0)
@@ -56,7 +58,9 @@ var calculateTimeCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("timer.GetCalculateTime err: %v", err)
 		}
-		log.Printf("输出结果: %s, %d", calculateTime.Format("2006-01-02 15:04:05"), calculateTime.Unix())
+		location, _ = time.LoadLocation("America/New_York")
+		//log.Printf("输出结果: %s, %d", calculateTime.Format("2006-01-02 15:04:05"), calculateTime.Unix())
+		log.Printf("输出结果: %s, %d", time.Unix(calculateTime.Unix(), 0).In(location).Format("2006-01-02 15:04:05"), calculateTime.Unix())
 	},
 }
 
